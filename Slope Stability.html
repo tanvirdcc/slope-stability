@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplified Slope Stability Assessment for Homogeneous Cohesive Soil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #74ebd5, #acb6e5);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        label {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        label > i {
+            margin-right: 10px;
+            color: #007bff;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05) inset;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+		.limitations {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #f7f7f9;
+    border-left: 4px solid #007bff;
+    border-radius: 4px;
+}
+
+.limitations h2 {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+.limitations ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.limitations li {
+    margin-bottom: 10px;
+}
+
+.limitations li strong {
+    color: #333;
+}
+.validation-graph, .calculation-illustration {
+            margin-top: 40px;
+            text-align: center;
+        }
+	</style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Simplified Slope Stability Assessment for Homogeneous Cohesive Soil</h1>
+        <div class="calculation-illustration">
+            <h2>Illustration</h2>
+            <img src="images/Slope.jpg" alt="calculation-illustration" width="90%"> <!-- Add the path to the calculation image here -->
+        </div>
+		<form id="slopeForm">
+            <label for="cohesion"><i class="fas fa-box"></i>Cohesion (c in Kpa):</label>
+            <input type="number" id="cohesion" step="0.01" required><br>
+
+            <label for="friction"><i class="fas fa-box"></i>Friction Angle (&phi; in Degrees):</label>
+            <input type="number" id="friction" step="0.01" required><br>
+
+            <label for="unitWeight"><i class="fas fa-weight"></i>Unit Weight of Soil (&gamma; in KN/cum):</label>
+            <input type="number" id="unitWeight" step="0.01" required><br>
+
+            <label for="slopeAngle"><i class="fas fa-angle-up"></i>Angle of the Real Slope (&alpha; in degrees):</label>
+            <input type="number" id="slopeAngle" step="0.01" required><br>
+
+            <label for="slopeHeight"><i class="fas fa-ruler-vertical"></i>Height of the Real Slope (H in meter):</label>
+            <input type="number" id="slopeHeight" step="0.01" required><br>
+
+            <button type="button" onclick="calculateFactorOfSafety()">Calculate FS</button>
+        </form>
+
+        <div id="result"></div>
+
+<div class="validation-graph">
+            <h2>Validation with Slide, Rocscience</h2>
+            <img src="images/validation.jpg" alt="Validation Graph" width="90%"> <!-- Add your image path here -->
+        </div>
+
+<div class="limitations">
+    <h2>Limitations</h2>
+    <ul>
+        <li><strong>Cohesion Only:</strong> The method is best suited for cohesive soils. When applied to cohesionless soils or soils with significant friction angles, the accuracy may be compromised.</li>
+        <li><strong>Homogeneous Material:</strong> The method assumes the soil mass is homogeneous. Variations in soil properties or layered systems may not be well-represented using this method.</li>
+        <li><strong>Limitation to 2D Analyses:</strong> The method is essentially two-dimensional. Real-world slope failures, especially those influenced by geological structures, can be three-dimensional in nature.</li>
+        <li><strong>Rigid Body Assumption:</strong> The method assumes the sliding mass behaves as a rigid body. This simplification may not represent the actual deformable behavior of the sliding mass, especially for large displacements or complex material behaviors.</li>
+        <li><strong>Constant Coefficient of Friction:</strong> The method assumes a constant coefficient of friction along the sliding surface, whereas in practice, this coefficient can vary due to changes in pore-water pressures or the dynamic behavior of the soil.</li>
+        <li><strong>Doesn't Account for Soil Deformation:</strong> The method focuses on rigid sliding without considering the deformation behavior of the soil, which can be significant in many situations.</li>
+    </ul>
+</div>
+
+    <script>
+        function calculateFactorOfSafety() {
+            const cohesion = parseFloat(document.getElementById('cohesion').value);
+            const friction = parseFloat(document.getElementById('friction').value);
+            const unitWeight = parseFloat(document.getElementById('unitWeight').value);
+            const slopeAngle = parseFloat(document.getElementById('slopeAngle').value);
+            const slopeHeight = parseFloat(document.getElementById('slopeHeight').value);
+
+            const a1 = -0.0008 * cohesion - 0.0026 * slopeAngle + 0.0034 * slopeHeight + 0.414;
+            const a2 = 0.0009 * cohesion - 0.0022 * slopeAngle + 0.0077 * slopeHeight + 0.7185;
+
+            const numerator = cohesion + (slopeHeight * a1 * unitWeight * Math.cos(a2 * slopeAngle * Math.PI/180) * Math.tan(friction * Math.PI/180));
+            const denominator = (slopeHeight * a1 * unitWeight * Math.sin(a2 * slopeAngle * Math.PI/180));
+
+            const factorOfSafety = numerator / denominator;
+
+            const resultContainer = document.getElementById('result');
+            resultContainer.innerHTML = `<p>Factor of Safety (FS): ${factorOfSafety.toFixed(2)}</p>`;
+        }
+    </script>
+	<footer>
+    	<div style="color: blue; font-weight: bold; text-indent: 10px;">
+    Tanvir Ahmed - Research Student, Universiti Teknologi Malaysia, email: tanvirahmed@graduate.utm.my.
+</div>
+
+</footer>
+
+</body>
+</html>
